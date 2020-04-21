@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+message test_proto
+{
+	optional int32 			proto1 			= 1;   
+	repeated int32          proto2 			= 2; 
+	optional int32 			proto3 			= 3;
+	repeated int32          proto4 			= 4; 
+}

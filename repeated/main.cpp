@@ -1,9 +1,9 @@
 /***********************************************************************************************
- * 	created: 		2020-04-12
+ * 	created: 		2020-04-21
  * 		
  * 	author:			chensong
  * 								
- * 	purpose:		acceptor
+ * 	purpose:		optional
  * 	我可能会遇到很多的人，听他们讲好2多的故事，我来写成故事或编成歌，用我学来的各种乐器演奏它。
  * 	然后还可能在一个国家遇到一个心仪我的姑娘，她可能会被我帅气的外表捕获，又会被我深邃的内涵吸引，在某个下雨的夜晚，她会全身淋透然后要在我狭小的住处换身上的湿衣服。
  * 	3小时候后她告诉我她其实是这个国家的公主，她愿意向父皇求婚。我不得已告诉她我是穿越而来的男主角，我始终要回到自己的世界。
@@ -16,8 +16,8 @@
  * 	安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
  * 	************************************************************************************************/
 
-#include <iostream>
 #include "test.pb.h"
+#include <iostream>
 
 static const char HEX[16] = {
 			'0', '1', '2', '3',
@@ -26,66 +26,71 @@ static const char HEX[16] = {
 			'c', 'd', 'e', 'f'
 		};
 std::string get_hex_str(const void *_buf, int num)
-{
-	std::string str;
-	str.reserve(num << 1);
-	const unsigned char* buf = (const unsigned char*)_buf;
+		{
+			std::string str;
+			str.reserve(num << 1);
+			const unsigned char* buf = (const unsigned char*)_buf;
 
-	unsigned char tmp;
-	for (int i = 0; i < num; ++i)
-	{
-		tmp = buf[i];
-		str.append(1, HEX[tmp / 16]);
-		str.append(1, HEX[tmp % 16]);
-	}
-	return str;
-}
+			unsigned char tmp;
+			for (int i = 0; i < num; ++i)
+			{
+				tmp = buf[i];
+				str.append(1, HEX[tmp / 16]);
+				str.append(1, HEX[tmp % 16]);
+			}
+			return str;
+		}
 
 
 void test_msg()
 {
 	test_proto msg;
 	msg.set_proto1(1);
-	msg.set_proto2(1);
-	msg.set_proto3(1);
-	msg.set_proto4(1);
-	msg.set_proto5(1);
-	msg.set_proto6("c");
-	msg.set_proto7(1);
-	msg.set_proto8(1);
+	for (int i = 0; i < 5; ++i)
+	{
+		msg.add_proto2(i+10);	
+	}
+	msg.set_proto3(2);
+	for (int i = 0; i < 5; ++i)
+	{
+		msg.add_proto4(i+10);	
+	}
 
+	
 	std::string temp = msg.SerializeAsString();
 
 	printf("[hex=%s]\n", get_hex_str(temp.c_str(), temp.length()).c_str());
 	printf("temp = %s, len = %lu\n" , temp.c_str(), temp.length());
 	
 	
-//	序列化的后的hex码
+	
+	//	序列化的后的hex码
 
-//     0801100118012001280132016338014001
+//     0801 100a 100b 100c 100d 100e 1802 200a200b200c200d200e
 //     
 //     解析:
 //     
 //     08:标志第一个的数据
 //     01:第一个数据是1
-//     10:第二个数据
-//     01:第二个数据是1
-//     18:第三个数据
-//     01:第三个数据是1
-//     20:第四个数据
-//     01:第四个数据是1
-//     28:第五个数据
-//     01:第五个数据是1
-//     32:第六个数据（这个标志位是增加10标志是string类型的数据）
-//     01:第六个数据的长度1字节
-//     63:第六个数据是’c’
-//     38:第七个数据（int类型的数据标志位是增加6）
-//     01:第七个数据是1
-//     40:第八个数据
-//     01:第八个数据是1
+//     10:第二个数据（10 这里的 10 和地下的10相同表示是 repeated类型的数据 下面10出现次数就是repeated类型数据的个数）
+//     0a:第二个数据是10
+//     10:第三个数据
+//     0b:第三个数据是11
+//     10:第四个数据
+//     0c:第四个数据是12
+//     10:第五个数据
+//     0d:第五个数据是13
+//     10:第六个数据
+//     0e:第六个数据的长度1字节
+//     18:第七个数据（int类型的数据标志位是增加6 因为 上面的repeated 类型数据出现的5次使用 是 8 +（5 * 2） = 18）
+//     01:第七个数据是2
+//     20:第八个数据（20 这里的 20 和地下的20相同表示是 repeated类型的数据 下面20出现次数就是repeated类型数据的个数）
+//     0a:第八个数据是10 底下类似的
+//     ...........
 //     
-//     总结:protobuf的序列化对改变数据类型时增加标志位的是不同的
-
+//     总结:protobuf的序列化对repeated数据类型的个数是不改变标志位的计算个数
+	
+	
 }
 
 
